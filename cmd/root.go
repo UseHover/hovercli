@@ -42,9 +42,15 @@ type Action struct {
 	Attributes map[string]interface{} `json:"attributes"`
 }
 
-// ActionList contains a slice of Actions
-type ActionList struct {
+// ActionListResponse struct represents a response containing
+// a list of actions
+type ActionListResponse struct {
 	Data []Action
+}
+
+// ActionResponse struct represents an action response
+type ActionResponse struct {
+	Data Action
 }
 
 // rootCmd represents the base command when called without any subcommands

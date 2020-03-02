@@ -16,9 +16,9 @@ limitations under the License.
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
-	"encoding/json"
 
 	"github.com/spf13/cobra"
 )
@@ -39,15 +39,19 @@ var describeCmd = &cobra.Command{
 			log.Fatalln("Missing argument: action id")
 		}
 
-		actionId := args[0]
-		var result map[string]interface{}
-		resp, err := GetRequest("actions/" + actionId)
+		actionID := args[0]
+		var actionResponse ActionResponse
+		resp, err := GetRequest("actions/" + actionID)
 		if err != nil {
 			log.Fatalln(err)
 		}
-		
-		json.NewDecoder(resp.Body).Decode(&result)
-		fmt.Println(result["data"])
+
+		json.NewDecoder(resp.Body).Decode(&actionResponse)
+		fmt.Print(fmt.Sprintf("ID: \t%s\nName: \t%s\nTransport Type: \t%s\nOperators: \t%v\n",
+			actionResponse.Data.ID,
+			actionResponse.Data.Attributes["name"],
+			actionResponse.Data.Attributes["transport_type"],
+			actionResponse.Data.Attributes["operators"]))
 	},
 }
 
