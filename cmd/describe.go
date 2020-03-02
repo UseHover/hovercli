@@ -21,30 +21,36 @@ import (
 	"encoding/json"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
-var listCmd = &cobra.Command{
-	Use:   "list",
-	Short: "List configured actions",
-	Long: `List configured actions`,
+// describeCmd represents the describe command
+var describeCmd = &cobra.Command{
+	Use:   "describe",
+	Short: "Describe an action",
+	Long: `Describe an action
+			hovercli describe a1b2c3d4`,
 	Run: func(cmd *cobra.Command, args []string) {
 		err := Authenticate()
 		if err != nil {
 			log.Fatalln(err)
 		}
 
+		if len(args) != 1 {
+			log.Fatalln("Missing argument: action id")
+		}
+
+		actionId := args[0]
 		var result map[string]interface{}
-		resp, err := GetRequest("actions?organization_id="+viper.GetString("organization_id"))
+		resp, err := GetRequest("actions/" + actionId)
 		if err != nil {
 			log.Fatalln(err)
 		}
-
+		
 		json.NewDecoder(resp.Body).Decode(&result)
 		fmt.Println(result["data"])
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(listCmd)
+	rootCmd.AddCommand(describeCmd)
 }

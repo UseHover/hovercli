@@ -17,6 +17,12 @@ package cmd
 
 import (
 	"fmt"
+	"log"
+	"time"
+	"bytes"
+	"encoding/json"
+	"net/http"
+
 	"github.com/spf13/cobra"
 	"os"
 
@@ -24,6 +30,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+const URL = "http://localhost:3000/api/"
 var cfgFile string
 
 // rootCmd represents the base command when called without any subcommands
@@ -62,6 +69,7 @@ func init() {
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
 	if cfgFile != "" {
+		
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
 	} else {
@@ -71,16 +79,64 @@ func initConfig() {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-
 		// Search config in home directory with name ".hovercli" (without extension).
-		viper.AddConfigPath(home)
 		viper.SetConfigName(".hovercli")
+		viper.SetConfigType("yaml")
+		viper.AddConfigPath(home)
+		
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match
 
 	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
+	if err := viper.ReadInConfig(); err != nil {
+		log.Fatalln(err)
 	}
+}
+
+// Authenticate checks if a valid token exists. If the token is expired 
+// then a new one is requested
+func Authenticate() error {
+	authToken := viper.GetString("auth_token")
+	authTokenExpiry := viper.GetTime("auth_token_expiry")
+
+	if authToken != "" && time.Now().Before(authTokenExpiry) {
+		return nil
+	} else {
+		var result map[string]string
+		email := viper.GetString("email")
+		password := viper.GetString("password")
+
+		requestBody, err := json.Marshal(map[string]string{
+			"email": email,
+			"password": password,
+		})
+
+		if err != nil {
+			return err
+		}
+
+		resp, err := http.Post(URL + "authenticate", "application/json", bytes.NewBuffer(requestBody))
+		if err != nil {
+			return err
+		}
+
+		json.NewDecoder(resp.Body).Decode(&result)
+		viper.Set("auth_token", result["auth_token"])
+		viper.Set("auth_token_expiry", time.Now().Local().Add(time.Hour * 2))
+		err = viper.WriteConfig()
+		return err
+	}
+}
+
+func GetRequest(endpoint string) (*http.Response, error) {
+	authToken := viper.GetString("auth_token")
+	var client http.Client
+	req, err := http.NewRequest("GET", URL + endpoint, nil)
+	req.Header.Add("Authorization", authToken)
+	if err != nil {
+		return &http.Response{}, err
+	}
+
+	return client.Do(req)
 }
