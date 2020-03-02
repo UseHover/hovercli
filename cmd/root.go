@@ -16,28 +16,42 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
-	"log"
-	"time"
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
+	"time"
+
+	"os"
 
 	"github.com/spf13/cobra"
-	"os"
 
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
 )
 
+// URL points to the Hover API url
 const URL = "http://localhost:3000/api/"
+
 var cfgFile string
+
+// Action struct represents an Action object
+type Action struct {
+	ID         string                 `json:"id"`
+	Attributes map[string]interface{} `json:"attributes"`
+}
+
+// ActionList contains a slice of Actions
+type ActionList struct {
+	Data []Action
+}
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "hovercli",
 	Short: "Welcome to the Hover Command Line Interface.",
-	Long: `Welcome to the Hover Command Line Interface.`,
+	Long:  `Welcome to the Hover Command Line Interface.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	//	Run: func(cmd *cobra.Command, args []string) { },
@@ -69,7 +83,7 @@ func init() {
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
 	if cfgFile != "" {
-		
+
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
 	} else {
@@ -83,7 +97,7 @@ func initConfig() {
 		viper.SetConfigName(".hovercli")
 		viper.SetConfigType("yaml")
 		viper.AddConfigPath(home)
-		
+
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match
@@ -94,7 +108,7 @@ func initConfig() {
 	}
 }
 
-// Authenticate checks if a valid token exists. If the token is expired 
+// Authenticate checks if a valid token exists. If the token is expired
 // then a new one is requested
 func Authenticate() error {
 	authToken := viper.GetString("auth_token")
@@ -108,7 +122,7 @@ func Authenticate() error {
 		password := viper.GetString("password")
 
 		requestBody, err := json.Marshal(map[string]string{
-			"email": email,
+			"email":    email,
 			"password": password,
 		})
 
@@ -116,23 +130,25 @@ func Authenticate() error {
 			return err
 		}
 
-		resp, err := http.Post(URL + "authenticate", "application/json", bytes.NewBuffer(requestBody))
+		resp, err := http.Post(URL+"authenticate", "application/json", bytes.NewBuffer(requestBody))
 		if err != nil {
 			return err
 		}
 
 		json.NewDecoder(resp.Body).Decode(&result)
 		viper.Set("auth_token", result["auth_token"])
-		viper.Set("auth_token_expiry", time.Now().Local().Add(time.Hour * 2))
+		viper.Set("auth_token_expiry", time.Now().Local().Add(time.Hour*2))
 		err = viper.WriteConfig()
 		return err
 	}
 }
 
+// GetRequest makes a GET request with an Authorization header
+// to the Hover API
 func GetRequest(endpoint string) (*http.Response, error) {
 	authToken := viper.GetString("auth_token")
 	var client http.Client
-	req, err := http.NewRequest("GET", URL + endpoint, nil)
+	req, err := http.NewRequest("GET", URL+endpoint, nil)
 	req.Header.Add("Authorization", authToken)
 	if err != nil {
 		return &http.Response{}, err
