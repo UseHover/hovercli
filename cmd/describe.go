@@ -23,12 +23,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// describeCmd represents the describe command
-var describeCmd = &cobra.Command{
-	Use:   "describe",
-	Short: "Describe an action",
-	Long: `Describe an action
-			hovercli describe a1b2c3d4`,
+var describeActionCmd = &cobra.Command{
+	Use:   "action",
+	Short: "Returns the details of an action",
+	Long: `Returns the details of an action
+			hovercli describe action a1b2c3d4`,
 	Run: func(cmd *cobra.Command, args []string) {
 		err := Authenticate()
 		if err != nil {
@@ -55,6 +54,15 @@ var describeCmd = &cobra.Command{
 	},
 }
 
+// describeCmd represents the describe command
+var describeCmd = &cobra.Command{
+	Use:   "describe",
+	Short: "Describe an action",
+	Long: `Describe an action
+			hovercli describe a1b2c3d4`,
+}
+
 func init() {
 	rootCmd.AddCommand(describeCmd)
+	describeCmd.AddCommand(describeActionCmd)
 }
