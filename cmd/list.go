@@ -24,10 +24,11 @@ import (
 	"github.com/spf13/viper"
 )
 
-var listCmd = &cobra.Command{
-	Use:   "list",
-	Short: "List configured actions",
-	Long:  `List configured actions`,
+var listActionsCmd = &cobra.Command{
+	Use:   "actions",
+	Short: "List all the actions you've configured on Hover",
+	Long: `List all the actions you've configured on Hover
+				hovercli list actions`,
 	Run: func(cmd *cobra.Command, args []string) {
 		err := Authenticate()
 		if err != nil {
@@ -54,6 +55,14 @@ var listCmd = &cobra.Command{
 	},
 }
 
+var listCmd = &cobra.Command{
+	Use:   "list <resource>",
+	Short: "List resources (actions, transactions, parsers)",
+	Long: `List resources (actions, transactions, parsers) from
+			the Hover API`,
+}
+
 func init() {
 	rootCmd.AddCommand(listCmd)
+	listCmd.AddCommand(listActionsCmd)
 }
