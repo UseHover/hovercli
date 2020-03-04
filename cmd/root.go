@@ -36,6 +36,21 @@ const URL = "http://localhost:3000/api/"
 
 var cfgFile string
 
+// ActionRequest is the request object when
+// creating actions
+type ActionRequest struct {
+	CustomAction ActionDetails `json:"custom_action"`
+}
+
+// ActionDetails contains the Action fields
+// used in ActionRequest
+type ActionDetails struct {
+	Name           string   `json:"name,omitempty"`
+	RootCode       string   `json:"root_code,omitempty"`
+	TransportType  string   `json:"transport_type,omitempty"`
+	WorldOperators []string `json:"world_operator_ids,omitempty"`
+}
+
 // Action struct represents an Action object
 type Action struct {
 	ID         string                 `json:"id"`

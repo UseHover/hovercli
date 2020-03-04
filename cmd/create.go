@@ -30,21 +30,6 @@ var (
 	worldOperators []string
 )
 
-// ActionRequest is the request object when
-// creating actions
-type ActionRequest struct {
-	CustomAction ActionDetails `json:"custom_action"`
-}
-
-// ActionDetails contains the Action fields
-// used in ActionRequest
-type ActionDetails struct {
-	Name           string   `json:"name"`
-	RootCode       string   `json:"root_code"`
-	TransportType  string   `json:"transport_type"`
-	WorldOperators []string `json:"world_operator_ids"`
-}
-
 var createActionCmd = &cobra.Command{
 	Use:   "action",
 	Short: "Create an action on Hover",
