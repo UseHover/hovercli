@@ -122,43 +122,43 @@ func Authenticate() error {
 
 	if authToken != "" && time.Now().Before(authTokenExpiry) {
 		return nil
-	} else {
-		var result map[string]string
-		email := viper.GetString("email")
-		password := viper.GetString("password")
+	}
+	var result map[string]string
+	email := viper.GetString("email")
+	password := viper.GetString("password")
 
-		requestBody, err := json.Marshal(map[string]string{
-			"email":    email,
-			"password": password,
-		})
+	requestBody, err := json.Marshal(map[string]string{
+		"email":    email,
+		"password": password,
+	})
 
-		if err != nil {
-			return err
-		}
-
-		resp, err := http.Post(URL+"authenticate", "application/json", bytes.NewBuffer(requestBody))
-		if err != nil {
-			return err
-		}
-
-		json.NewDecoder(resp.Body).Decode(&result)
-		viper.Set("auth_token", result["auth_token"])
-		viper.Set("auth_token_expiry", time.Now().Local().Add(time.Hour*2))
-		err = viper.WriteConfig()
+	if err != nil {
 		return err
 	}
+
+	resp, err := http.Post(URL+"authenticate", "application/json", bytes.NewBuffer(requestBody))
+	if err != nil {
+		return err
+	}
+
+	json.NewDecoder(resp.Body).Decode(&result)
+	viper.Set("auth_token", result["auth_token"])
+	viper.Set("auth_token_expiry", time.Now().Local().Add(time.Hour*2))
+	err = viper.WriteConfig()
+	return err
+
 }
 
-// GetRequest makes a GET request with an Authorization header
-// to the Hover API
-func GetRequest(endpoint string) (*http.Response, error) {
+// APIRequest makes a request to the Hover API
+// The request has an Authorization header.
+func APIRequest(method string, endpoint string, payload []byte) (*http.Response, error) {
 	authToken := viper.GetString("auth_token")
 	var client http.Client
-	req, err := http.NewRequest("GET", URL+endpoint, nil)
-	req.Header.Add("Authorization", authToken)
+	req, err := http.NewRequest(method, URL+endpoint, bytes.NewBuffer(payload))
 	if err != nil {
 		return &http.Response{}, err
 	}
-
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Authorization", authToken)
 	return client.Do(req)
 }

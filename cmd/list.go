@@ -36,7 +36,7 @@ var listActionsCmd = &cobra.Command{
 		}
 
 		var result ActionListResponse
-		resp, err := GetRequest("actions?organization_id=" + viper.GetString("organization_id"))
+		resp, err := APIRequest("GET", "actions?organization_id="+viper.GetString("organization_id"), nil)
 		if err != nil {
 			log.Fatalln(err)
 		}

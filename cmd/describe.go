@@ -40,7 +40,7 @@ var describeActionCmd = &cobra.Command{
 
 		actionID := args[0]
 		var actionResponse ActionResponse
-		resp, err := GetRequest("actions/" + actionID)
+		resp, err := APIRequest("GET", "actions/"+actionID, nil)
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -57,9 +57,10 @@ var describeActionCmd = &cobra.Command{
 // describeCmd represents the describe command
 var describeCmd = &cobra.Command{
 	Use:   "describe",
-	Short: "Describe an action",
-	Long: `Describe an action
-			hovercli describe a1b2c3d4`,
+	Short: "Describe resources available from the Hover API",
+	Long: `Describe resources available from the Hover API
+			Available subcommand is action:
+				hovercli describe action a1b2c3d4`,
 }
 
 func init() {
