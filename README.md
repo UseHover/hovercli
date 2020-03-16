@@ -2,7 +2,7 @@
 
 The Hover CLI is a unified tool to manage your Hover configurations.
 
-Configuration file should be in your home dir, with the following values:
+Configuration file should be in your home dir, default name `.hovercli.yaml`. It requires the following values:
 
 ```yaml
 email: your@ema.il
