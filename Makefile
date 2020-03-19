@@ -1,5 +1,5 @@
 SHELL = bash
-OSARCHES := "darwin/amd64 linux/386 linux/amd64 linux/arm linux/arm64 linux/ppc64 linux/ppc64le linux/s390x"
+OSARCHES := "darwin/amd64 linux/amd64"
 OUTPUT := "build/bifrost-$(VERSION)-{{.OS}}-{{.Arch}}/bifrost"
 
 build_all:
