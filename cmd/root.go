@@ -32,7 +32,7 @@ import (
 )
 
 // URL points to the Hover API url
-const URL = "http://localhost:3000/api/"
+const URL = "https://stage.usehover.com/api/"
 
 var cfgFile string
 
