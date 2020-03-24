@@ -18,3 +18,5 @@ hovercli
 
 # build dir
 /build
+
+*.swp
